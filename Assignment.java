@@ -61,12 +61,11 @@ public class Assignment
       int positionCol = startCol;
       int nextPositionRow;
       int nextPositionCol;
-      int prevPositionRow;
-      int prevPositionCol;
+      StringStackClass intersections = new StringStackClass();
 
       //while we aren't at the end and there is a way out of our current position
 
-      while(mazeArray[positionRow][positionCol] != 'E' && !stackArray[positionRow][positionCol].isEmptyStack())
+      while(mazeArray[positionRow][positionCol] != 'E')
       {
         //if our position has no moves, break
         if(mazeArray[positionRow][positionCol] == 'E')
@@ -74,6 +73,25 @@ public class Assignment
           System.out.print("Maze Solved!");
           break;
         }
+
+        if(stackArray[positionRow][positionCol].isEmptyStack()) //if no moves from this position
+        {
+          System.out.println("Backtracking");
+          if(intersections.isEmptyStack()) //if we don't have any intersections to try, break out
+          {
+            System.out.println("No more paths to take");
+            break;
+          }
+          else //if there are other paths to try, make a new next position
+          {
+            System.out.println("Backtracking");
+            positionRow = Integer.parseInt(intersections.peek().substring(0,2)); //seperating the strings into rows and columns
+            positionCol = Integer.parseInt(intersections.peek().substring(3,5));
+            intersections.pop();
+          }
+        }
+        else
+        {
         /*
         if(stackArray[positionRow][positionCol].isEmptyStack())
         {
@@ -83,17 +101,29 @@ public class Assignment
         }
         */
 
-        String currentCoords = String.format("%02d %02d",positionRow, positionCol);
-        String nextCoords = stackArray[positionRow][positionCol].peek();
-        nextPositionRow = Integer.parseInt(nextCoords.substring(0,2));
-        nextPositionCol = Integer.parseInt(nextCoords.substring(3,5));
-        if(stackArray[nextPositionRow][nextPositionCol].peek().equals(currentCoords))
-        {
-          stackArray[nextPositionRow][nextPositionCol].pop();
+          String currentCoords = String.format("%02d %02d", positionRow, positionCol); //to compare current to next
+          String nextCoords = stackArray[positionRow][positionCol].peek(); //getting next coordinates in string form
+          nextPositionRow = Integer.parseInt(nextCoords.substring(0, 2)); //seperating the strings into rows and columns
+          nextPositionCol = Integer.parseInt(nextCoords.substring(3, 5));
+          if (!(stackArray[nextPositionRow][nextPositionCol].isEmptyStack()))
+          {
+            if (stackArray[nextPositionRow][nextPositionCol].peek().equals(currentCoords)) //comparing our current coords to the stack of our next
+            {
+              stackArray[nextPositionRow][nextPositionCol].pop(); //if they are the same, pop once
+            }
+          }
+          stackArray[positionRow][positionCol].pop();
+
+          //if there's more than one path from this position, push it into the intersection stack
+          if (!stackArray[positionRow][positionCol].isEmptyStack())
+          {
+            intersections.push(String.format("%02d %02d", positionRow, positionCol));
+          }
+
+          //movement
+          positionRow = nextPositionRow;
+          positionCol = nextPositionCol;
         }
-        stackArray[positionRow][positionCol].pop();
-        positionRow = nextPositionRow;
-        positionCol = nextPositionCol;
 
         System.out.println("Position = " + positionRow + "x" + positionCol);
 
